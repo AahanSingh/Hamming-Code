@@ -124,8 +124,8 @@ int main(int argc, const char * argv[])
     for(int i=0;i<dw.length()+p;i++)
         cw+="0";
     dw=reverse(dw);
-    for(int i=0;i<cw.length();i++)
-    {
+    for(int i=0;i<cw.length();i++)  // Creating code word with the indexes of the parity bits set to 'x'.
+    {                               // The other bits contain the data word.
         if((pow(2,flag)-1)==i)
         {
             cw.replace(i, 1, "x");
