@@ -12,22 +12,41 @@ using namespace std;
 #include <math.h>
 void setParity(int p, string &cw)
 {
+    /* Partiy bit 'i' is at position 2^(i-1). eg- P2 is at position 2^(1)=2.
+     Since strings start at index 0, the position of parity bit is subtracted by 1.
+    */
     int j=0;
     int n=0;
-    for(int i=pow(2,p)-1;i<cw.length();i=j+p+1)
+    for(int i=pow(2,p)-1;i<cw.length();i=j+p+1) // This loop is to traverse the entire code word.
+    /*  After checking the current 'n' bits for the parity bit at 'n'th
+        position the next n bits must be skipped. 
+        Explaination of the loop update condition:
+            p -> parity bit 'p'
+            j -> index of last of the 'p' bits that must be checked to set the 'p'th parity bit
+            +1 -> since strings start from 0 index
+            Thus p+j+1 skips the next p+1 bits
+    */
     {
-        for(j=i;j<(i+pow(2,p));j++)
+        
+        for(j=i;j<(i+pow(2,p));j++) // This loop is to traverse the next n bits to check for parity for the nth parity bit
         {
-            if((char)(cw[j])=='1')
+            /*
+                Explaination of the loop check condition:
+                    The 'n'th parity bit is at postion 2^(n-1). [eg. 2nd parity bit is at position 2^(1)=2]
+                    To set this bit the next 2^(n-1) bits must be checked for even parity.
+                    The value of 'p' being sent to this function is already reduced by 1. Thus 'p' is already
+                    n-1 for the 'n'th parity bit.
+             */
+            if((char)(cw[j])=='1')//Checking for even parity
                 n++;
         }
     }
     if(n%2==0)
-        cw.replace(pow(2,p)-1,1,"0");
+        cw.replace(pow(2,p)-1,1,"0");//If even parity set the parity bit to 0
     else
-        cw.replace(pow(2,p)-1,1,"1");
+        cw.replace(pow(2,p)-1,1,"1");//else set parity bit to 1
 }
-string reverse(string s)
+string reverse(string s)//Reversing a string
 {
     string copy;
     long int x=s.length()-1;
@@ -37,6 +56,10 @@ string reverse(string s)
 }
 bool checkParity(int p,string s)
 {
+    /*
+        This function checks if the pth parity bit is of even parity
+        or of odd parity.
+     */
     int j=0;
     int n=0;
     for(int i=pow(2,p)-1;i<s.length();i=j+p+1)
@@ -55,26 +78,29 @@ bool checkParity(int p,string s)
 }
 void checkRw(string s,int p,string x)
 {
+    /*
+     This function checks if the received code word is correct or not. If it is incorrect the bit positon of
+     the error is detected and corrected.
+     */
+
     if(x.compare(s)==0)
         return;
     
-    int n=0;
+    int n=0;    //'n' stores the position of the error bit
     s=reverse(s);
     for(int i=0;i<p;i++)
     {
-        if(checkParity(i,s)==false)
-            n+=(pow(2,i));
-    }
-    if(n==0)
-        cout<<"RECEIVED CODE WORD CORRECT\n";
-    else
-    {
-        cout<<"WRONG RECEIVED CODE WORD\n";
+        if(checkParity(i,s)==false) // If the pth parity bit if of odd parity then
+            n+=(pow(2,i));          // the index of that parity bit must be added to 'n' in order to
+    }                               // find out the position of the bit received incorrectly.
+    if(n!=0) // If all parity bits are of even parity then 'n' is 0 thus the received code word is correct. If not then received code
+    {       // word is wrong.
+        cout<<"\nRECEIVED CODE WORD INCORRECT\n";
         int pos=n;
         cout<<"BIT: "<<pos<<" AT ERROR\n";
-        if((char)(s[pos-1])=='0')
+        if((char)(s[pos-1])=='0')   // If incorrect bit is received as 0 flip it to 1.
             s.replace(pos-1,1,"1");
-        else
+        else                        // If incorrect bit is received as 1 flip it to 0.
             s.replace(pos-1,1,"0");
         s=reverse(s);
         cout<<"CORRECTED CODE WORD: "<<s<<"\n";
